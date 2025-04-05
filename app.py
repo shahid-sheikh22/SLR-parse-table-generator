@@ -28,7 +28,6 @@ def process_grammar(grammar):
     """
     start_symbol = list(grammar.keys())[0]
     augmented_start = f"{start_symbol}'"
-    # Augmented grammar: list of (LHS, production-tuple)
     augmented_grammar = [(augmented_start, (start_symbol,))]
     
     non_terminals = set(grammar.keys())
@@ -40,7 +39,6 @@ def process_grammar(grammar):
             for symbol in symbols:
                 if symbol not in non_terminals and symbol != '#':
                     terminals.add(symbol)
-            # Add production to augmented grammar
             augmented_grammar.append((nt, tuple(symbols) if prod != '#' else tuple()))
     terminals.add('$')
     return start_symbol, terminals, non_terminals, augmented_grammar
@@ -52,13 +50,11 @@ def process_grammar(grammar):
 def compute_first_sets(grammar, terminals, non_terminals):
     """Compute FIRST sets for all symbols."""
     first_sets = {}
-    # Initialize FIRST sets for non-terminals and terminals.
     for nt in non_terminals:
         first_sets[nt] = set()
     for terminal in terminals:
         first_sets[terminal] = {terminal}
     
-    # For any NT with epsilon production
     for nt, productions in grammar.items():
         if '#' in productions:
             first_sets[nt].add('#')
@@ -237,7 +233,6 @@ def construct_parsing_table(canonical_collection, goto_table, terminals, non_ter
             nt, rhs = item
             try:
                 dot_pos = rhs.index('DOT')
-                # Shift action if dot is not at end
                 if dot_pos < len(rhs) - 1:
                     next_symbol = rhs[dot_pos + 1]
                     if next_symbol in terminals and (i, next_symbol) in goto_table:
@@ -245,7 +240,7 @@ def construct_parsing_table(canonical_collection, goto_table, terminals, non_ter
                         action = f"s{next_state}"
                         if action not in parsing_table[i][next_symbol]:
                             parsing_table[i][next_symbol].append(action)
-                # Reduce or accept if dot is at end
+
                 elif dot_pos == len(rhs) - 1 or (len(rhs) == 1 and rhs[0] == 'DOT'):
                     if nt == f"{start_symbol}'" and len(rhs) == 2 and rhs[1] == start_symbol:
                         parsing_table[i]['$'].append("acc")
@@ -381,7 +376,6 @@ def main():
     st.markdown("[Source Code](https://github.com/singh-sudhir16/SLR-parse-table-generator)")
     st.title("SLR Parser Generator")
     
-    # Sidebar for grammar input
     st.sidebar.header("Grammar Input")
     example_grammar = """
 E -> E + T | T
@@ -402,7 +396,6 @@ F -> ( E ) | id
             parsing_table = construct_parsing_table(canonical_collection, goto_table, terminals, non_terminals, 
                                                      augmented_grammar, grammar, follow_sets, start_symbol)
             
-            # Create tabs for organized display
             tab1, tab2, tab3, tab4 = st.tabs(["Grammar Analysis", "Productions", "LR(0) Items", "Parsing Table"])
             
             with tab1:
